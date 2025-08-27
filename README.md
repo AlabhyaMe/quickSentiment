@@ -115,3 +115,15 @@ Adding more machine learning models.
 
 License
 This package is licensed under the MIT License.
+
+## 📚 Dataset Citation
+
+The demo uses publicly available training data from:
+
+> Madhav Kumar Choudhary. *Sentiment Prediction on Movie Reviews*. Kaggle.  
+> [https://www.kaggle.com/datasets/madhavkumarchoudhary/sentiment-prediction-on-movie-reviews](https://www.kaggle.com/datasets/madhavkumarchoudhary/sentiment-prediction-on-movie-reviews)  
+> Accessed on: 2025- 07-15
+
+If you use this dataset in your own work, please cite the original creator as per Kaggle's [Terms of Use](https://www.kaggle.com/terms).
+
+
