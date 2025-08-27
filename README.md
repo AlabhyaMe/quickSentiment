@@ -1,7 +1,8 @@
 #Get started with the installation
+```bash
 # install.packages("devtools")
 devtools::install_github("AlabhyaMe/quickSentiment")
-
+```
 
 quickSentiment: A Fast and Flexible Pipeline for Text Classification in R
 quickSentiment is an R package designed to streamline the process of text classification. It provides a complete, end-to-end workflow from text cleaning to model training, evaluation, and prediction. Built on a modular architecture, it allows users to easily experiment with different vectorization methods and high-performance machine learning models.
@@ -24,9 +25,10 @@ Reproducible Predictions: The pipeline returns a self-contained artifact object,
 Installation
 You can install the development version of quickSentiment from GitHub with:
 
+```bash
 # install.packages("devtools")
 devtools::install_github("AlabhyaMe/quickSentiment")
-
+```
 Core Workflow: The Three Main Functions
 The quickSentiment workflow is designed to be logical and flexible, centered around three key functions.
 
@@ -36,7 +38,7 @@ The first step is to clean your raw text data. This function is kept separate fr
 It handles a variety of common cleaning steps, including lowercasing, lemmatization, and removing URLs, HTML, and stopwords.
 
 Usage:
-
+```bash
 library(quickSentiment)
 library(readr)
 
@@ -45,6 +47,7 @@ my_data <- read_csv("path/to/your/data.csv")
 
 # Create a new column of cleaned text
 my_data$cleaned_text <- pre_process_final(my_data$reviewText)
+```
 
 2. pipeline(): The Main Engine for Training
 This is the core function of the package. It takes your preprocessed data and handles everything else: splitting the data, vectorizing the text, training a model, and evaluating its performance.
@@ -52,7 +55,7 @@ This is the core function of the package. It takes your preprocessed data and ha
 You can easily swap out vectorization methods or models just by changing a string argument.
 
 Usage:
-
+```bash
 # Train a TF-IDF Logistic Regression model with bigrams
 pipeline_artifacts <- pipeline(
   df = my_data,
@@ -62,14 +65,14 @@ pipeline_artifacts <- pipeline(
   model_name = "logit",
   n_gram = 2
 )
-
+```
 The function will print a detailed evaluation report from caret and return a list containing all the necessary "artifacts" for prediction.
 
 3. prediction(): Scoring New, Unseen Data
 Once your pipeline has run, you can use the pipeline_artifacts object it returned to make predictions on new data. This function is generic and automatically adapts to the type of model you trained (glmnet, ranger, or xgboost).
 
 Usage:
-
+```bash
 # Create a vector of new, raw text to predict on
 new_reviews <- c(
   "This was the best product I have ever purchased!",
@@ -83,7 +86,7 @@ final_predictions <- prediction(
 )
 
 print(final_predictions)
-
+```
 Behind the Hood: How it Works
 quickSentiment is designed to be both user-friendly and powerful. This is achieved through a few key design choices:
 
