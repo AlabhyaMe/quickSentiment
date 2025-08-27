@@ -1,11 +1,6 @@
 ---
 title: "introduction-to-quickSentiment"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{introduction-to-quickSentiment}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
