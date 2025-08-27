@@ -1,14 +1,90 @@
 ---
-title: "introduction-to-quickSentiment"
+# ===================================================================
+# --- DEMO SCRIPT FOR THE quickSentiment PACKAGE ---
+# ===================================================================
+# This script demonstrates the full end-to-end workflow:
+# 1. Load and prepare data.
+# 2. Train a model using the main pipeline function.
+# 3. Use the trained pipeline artifacts to predict on new, unseen data.
+# ===================================================================
 
-
+# --- 1. SETUP: LOAD LIBRARIES ---
+# -------------------------------------------------------------------
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+library(quickSentiment)
+library(readr)
+library(dplyr)
 ```
 
 ```{r setup}
-library(quickSentiment)
+library(doParallel)
+registerDoParallel()
 ```
+
+# --- 2. LOAD AND PREPARE TRAINING DATA ---
+```{r}
+demo<- read_csv("your location of file")
+set.seed(123)
+```
+
+# --- 3. PREPROCESS THE TEXT ---
+# -------------------------------------------------------------------
+# Use the pre_process() function from our package to clean the raw text.
+# This step is done externally to the main pipeline, allowing you to reuse
+# the same cleaned text for multiple different models or analyses in the future.
+
+
+```{r}
+demo_sample$cleaned_text <- pre_process(demo_sample$reviewText)
+```
+
+# --- 4. RUN THE MAIN TRAINING PIPELINE ---
+# -------------------------------------------------------------------
+# This is the core of the package. We call the main pipeline() function
+# to handle the train/test split, vectorization, model training, and evaluation.
+
+```{r}
+result <- pipeline(
+  # --- Define the vectorization method ---
+  # Options: "bow" (raw counts), "tf" (term frequency), "tfidf"
+  vect_method = "tf",
+  
+  # --- Define the model to train ---
+  # Options: "logit", "rf", "xgb"
+  model_name = "rf",
+  
+  # --- Specify the data and column names ---
+  df = demo_sample,
+  text_column_name = "cleaned_text",      # The column with our preprocessed text
+  sentiment_column_name = "sentiment",    # The column with the target variable
+  
+  # --- Set vectorization options ---
+  # Use n_gram = 2 for unigrams + bigrams, or 1 for just unigrams
+  n_gram = 1
+)
+```
+# ===================================================================
+# --- 5. PREDICTION ON NEW, UNSEEN DATA ---
+# ===================================================================
+# The training is complete. The 'result' object now contains our trained
+# model and all the necessary "artifacts" for prediction.
+```{r}
+# --- Load new data that the model has never seen before ---
+new_df <- read_csv("your location")
+
+# --- IMPORTANT: Apply the *exact same* preprocessing to the new data ---
+new_df$cleaned_text <- pre_process(new_df$reviewText)
+
+# --- Use the generic 'prediction' function to score the new data ---
+# This function takes two main arguments:
+#  1. The 'result' object from our pipeline, which contains the trained model and templates.
+#  2. The new data frame and the name of the column with the cleaned text.
+new_df$sentimentPredict <- prediction(
+  pipeline_object = result,
+  df = new_df,
+  text_column = "cleaned_text"
+)
+
+print(head(new_df))
+```
+
