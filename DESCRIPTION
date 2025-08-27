@@ -1,0 +1,29 @@
+Package: quickSentiment
+Title: A Fast and Flexible Pipeline for Text Classification
+Version: 0.1.0
+Authors@R: 
+    person("Alabhya", "Dahal", email = "alabhya.dahal@gmail.com", role = c("aut", "cre"))
+Description: Provides a complete and modular pipeline for text classification. 
+    Includes functions for text preprocessing, multiple vectorization methods 
+    (Bag-of-Words, TF-IDF), and a suite of high-performance machine learning models 
+    (e.g., glmnet, ranger, xgboost). Designed to be easily extensible for 
+    comparing different modeling approaches.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Imports: 
+    quanteda,
+    dplyr,
+    stringr,
+    textstem,
+    glmnet,
+    ranger,
+    xgboost,
+    caret,
+    magrittr,
+    doParallel
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
