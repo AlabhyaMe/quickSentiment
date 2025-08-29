@@ -23,7 +23,7 @@ registerDoParallel()
 
 # --- 2. LOAD AND PREPARE TRAINING DATA ---
 ```{r}
-demo<- read_csv("your location of file")
+tweets <- read_csv("tweets.csv")
 set.seed(123)
 ```
 
@@ -35,7 +35,7 @@ set.seed(123)
 
 
 ```{r}
-demo_sample$cleaned_text <- pre_process(demo_sample$reviewText)
+tweets$cleaned <- pre_process(tweets$Tweet)
 ```
 
 # --- 4. RUN THE MAIN TRAINING PIPELINE ---
