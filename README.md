@@ -74,15 +74,14 @@ Once your pipeline has run, you can use the pipeline_artifacts object it returne
 Usage:
 ```bash
 # Create a vector of new, raw text to predict on
-new_reviews <- c(
-  "This was the best product I have ever purchased!",
-  "A complete waste of money, I would not recommend this."
-)
+new_reviews <- "your new data file"
+new_rviews$cleaned <- pre_process(new_reviews$"the text column")
 
 # The prediction function uses the artifacts to ensure a consistent workflow
 final_predictions <- prediction(
-  pipeline_object = pipeline_artifacts,
-  new_raw_text_vector = new_reviews
+df = new_reviews
+pipeline_object = pipeline_artifacts,
+text_column = "cleaned"
 )
 
 print(final_predictions)
@@ -116,14 +115,5 @@ Adding more machine learning models.
 License
 This package is licensed under the MIT License.
 
-## 📚 Dataset Citation
-
-The demo uses publicly available training data from:
-
-> Madhav Kumar Choudhary. *Sentiment Prediction on Movie Reviews*. Kaggle.  
-> [https://www.kaggle.com/datasets/madhavkumarchoudhary/sentiment-prediction-on-movie-reviews](https://www.kaggle.com/datasets/madhavkumarchoudhary/sentiment-prediction-on-movie-reviews)  
-> Accessed on: 2025- 07-15
-
-If you use this dataset in your own work, please cite the original creator as per Kaggle's [Terms of Use](https://www.kaggle.com/terms).
 
 
