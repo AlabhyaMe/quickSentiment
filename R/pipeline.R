@@ -3,105 +3,159 @@
 #' This function takes a data frame with pre-cleaned text and handles the
 #' data splitting, vectorization, model training, and evaluation.
 #'
-#' @param vect_method A string specifying the vectorization method (e.g., "bow", "tfidf").
-#' @param model_name A string specifying the model to train (e.g., "logit", "rf", "xgb").
+#' @param vect_method A string specifying the vectorization method.
+#'   Must be one of \code{"bow"}, \code{"binary"}, \code{"tf"}, or \code{"tfidf"}.
+#' @param model_name A string specifying the model to train.
+#'   Must be one of \code{"logit"}, \code{"rf"}, or \code{"xgb"}.
 #' @param df The input data frame.
 #' @param text_column_name The name of the column containing the **preprocessed** text.
 #' @param sentiment_column_name The name of the column containing the original target labels (e.g., ratings).
 #' @param n_gram The n-gram size to use for BoW/TF-IDF. Defaults to 1.
+#' @param stratify If TRUE, use stratified split by sentiment. Default TRUE.
+#' @param parallel If TRUE, runs model training in parallel. Default FALSE.
 #'
 #' @return A list containing the trained model object, the DFM template,
 #'   class levels, and a comprehensive evaluation report.
-#'
-#' @importFrom stats predict
-#' @importFrom caret confusionMatrix
-#'
+#' @importFrom caret createDataPartition confusionMatrix
+#' @importFrom stats factor
+#' @importFrom parallel detectCores makeCluster stopCluster
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach registerDoSEQ
 #' @export
+#' @examples
+#'
+#' df <- data.frame(
+#'   text = c("good product","bad service","loved it","hated it","bad experience","terrible quality","excellent","awful","very good","very bad"),
+#'   y = c("P","N","P","N","N","N","P","N","P","N")
+#' )
+#' out <- pipeline("bow", "logit", df, "text", "y")
+#' out$evaluation_report
+#'
+#'
 pipeline <- function(vect_method,
   model_name,
   df,
   text_column_name,
   sentiment_column_name,
-  n_gram = 1) {
+  n_gram = 1,
+  parallel=F,
+  stratify = TRUE) {
 
-cat(paste0("--- Running Pipeline: ", toupper(vect_method), " + ", toupper(model_name), " ---\n"))
+    stopf <- function(...) stop(sprintf(...), call. = FALSE)
+    vect_method <- tolower(trimws(vect_method))
+    model_name  <- tolower(trimws(model_name))
+    n_gram <- as.integer(n_gram)
+
+  #Ensure Vector method is in Input
+    if (!vect_method %in% c("bow", "binary", "tf", "tfidf")) {
+      stopf("Vectorizer '%s' is not supported. Use: bow, binary, tf, tfidf.", vect_method)
+    }
+
+  #Ensure Model name is in Input
+  models_list <- list(logit = logit_model, rf = rf_model, xgb = xgb_model)
+    if (!model_name %in% names(models_list)) {
+      stopf("Model '%s' is not supported. Use: %s.",
+            model_name, paste(names(models_list), collapse = ", "))
+    }
+
+
+  if (!is.data.frame(df)) stopf("`df` must be a data.frame.")
+  if (!text_column_name %in% names(df)) stopf("Column '%s' not found.", text_column_name)
+  if (!sentiment_column_name %in% names(df)) stopf("Column '%s' not found.", sentiment_column_name)
+
+  #FOR GLMNET ONLY
+  if (isTRUE(parallel)) {
+    # Dynamically detect cores and register
+    n_cores <- parallel::detectCores() - 1
+    cl <- parallel::makeCluster(n_cores)
+    doParallel::registerDoParallel(cl)
+
+    # Ensure the cluster stops even if the code crashes
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    on.exit(foreach::registerDoSEQ(), add = TRUE)
+  }
+
+  message(paste0("--- Running Pipeline: ", toupper(vect_method), " + ", toupper(model_name), " ---\n"))
   df$sentiment <- as.factor(df[[sentiment_column_name]])
-# --- 1. DATA CLEANING & PREP ---
-# Remove rows where the cleaned text is empty
-initial_rows <- nrow(df)
-df[[text_column_name]][df[[text_column_name]] == ""] <- NA
-df <- df[!is.na(df[[text_column_name]]), ]
-rows_dropped <- initial_rows - nrow(df)
-if (rows_dropped > 0) {
-cat(paste0("WARNING: Dropped ", rows_dropped, " rows due to missing values in '", text_column_name, "'\n"))
-}
+
+  # --- 1. DATA CLEANING & PREP ---
+  # Remove rows where the cleaned text is empty
+
+  initial_rows <- nrow(df)
+  df[[text_column_name]] <- trimws(as.character(df[[text_column_name]]))
+  df[[text_column_name]][df[[text_column_name]] == ""] <- NA_character_
+
+  df <- df[!is.na(df[[text_column_name]]) & !is.na(df$sentiment), , drop = FALSE]
 
 
-# --- 2. TRAIN/TEST SPLIT ---
-set.seed(42)
-train_indices <- sample(1:nrow(df), size = 0.8 * nrow(df))
-data_train <- df[train_indices, ]
-data_test <- df[-train_indices, ]
-cat(paste0("Data split: ", nrow(data_train), " training rows, ", nrow(data_test), " test rows.\n"))
+  rows_dropped <- initial_rows - nrow(df)
 
-# --- 3. VECTORIZATION ---
-# This now operates on the pre-cleaned text column
-X_train <- NULL
-X_test <- NULL
+  if (rows_dropped > 0) {
+    warning(sprintf("Dropped %d row(s) with missing/empty text or missing labels.", rows_dropped),
+            call. = FALSE)
+  }
 
-if (vect_method %in% c("bow", "tf", "tfidf")) {
-cat(paste("Vectorizing text using:", toupper(vect_method), "...\n"))
+  if (nrow(df) < 5) stopf("Not enough rows after filtering (%d).", nrow(df))
+  if (nlevels(df$sentiment) < 2) stopf("Need at least 2 sentiment classes after filtering.")
 
-X_train <- BOW_train(data_train[[text_column_name]],
-      weighting_scheme = vect_method,
-      ngram_size = n_gram)
-X_test <- BOW_test(data_test[[text_column_name]],
-    X_train,
-    weighting_scheme = vect_method,
-    ngram_size = n_gram)
+  # --- 2. TRAIN/TEST SPLIT ---
+  set.seed(42)
 
-} else {
-stop(paste("Vectorizer '", vect_method, "' is not supported!"))
-}
+  if (isTRUE(stratify)) {
+    train_idx <- caret::createDataPartition(df$sentiment, p = 0.8, list = FALSE)
+  } else {
+    train_idx <- sample(seq_len(nrow(df)), size = floor(0.8 * nrow(df)))
+  }
 
-# Prepare the response variables (y)
-y_train <- data_train$sentiment
-y_test <- data_test$sentiment
+  data_train <- df[train_idx, , drop = FALSE]
+  data_test  <- df[-train_idx, , drop = FALSE]
 
-# --- 4. MODEL TRAINING & PREDICTION ---
-model_results <- NULL
+  message(paste0("Data split: ", nrow(data_train), " training rows, ", nrow(data_test), " test rows.\n"))
 
-if (model_name == "logit") {
-model_results <- logit_model(X_train, y_train, X_test)
-} else if (model_name == "rf") {
-model_results <- rf_model(X_train, y_train, X_test)
-} else if (model_name == "xgb") {
-model_results <- xgb_model(X_train, y_train, X_test)
-} else {
-stop(paste("Model '", model_name, "' is not supported!"))
-}
+  # --- 3. VECTORIZATION ---
+  # This now operates on the pre-cleaned text column
+  message(sprintf("Vectorizing with %s (ngram=%d)...", toupper(vect_method), n_gram))
 
-# --- 5. EVALUATION ---
-cat("\n--- Evaluating Model Performance ---\n")
-predictions <- model_results$pred
-predictions_factor <- factor(predictions, levels = levels(y_test))
+  fit <- BOW_train(data_train[[text_column_name]],
+                   weighting_scheme = vect_method,
+                   ngram_size = n_gram)
+  X_train <- fit$dfm_template
 
-evaluation <- caret::confusionMatrix(
-data = predictions_factor,
-reference = y_test,
-mode = "everything"
-)
-print(evaluation)
+  X_test <- BOW_test(data_test[[text_column_name]],fit)
 
-# --- 6. RETURN FINAL RESULTS ---
-final_output <- list(
-trained_model = model_results$model,
-dfm_template = X_train,
-class_levels = levels(y_test),
-ngram_size_used = n_gram,
-vectorize_test_function = BOW_test,
-evaluation_report = evaluation
-)
+  # Prepare the response variables (y)
+  y_train <- data_train$sentiment
+  y_test <- data_test$sentiment
 
-return(final_output)
-}
+  # --- 4. MODEL TRAINING & PREDICTION ---
+
+  model_results <- models_list[[model_name]](X_train, y_train, X_test, parallel = parallel)
+  if (is.null(model_results$model) || is.null(model_results$pred)) {
+    stopf("Model function '%s' must return a list with elements `model` and `pred`.", model_name)
+  }
+
+
+  # --- 5. EVALUATION ---
+  message("\n--- Evaluating Model Performance ---\n")
+  predictions <- model_results$pred
+  predictions_factor <- factor(predictions, levels = levels(y_test))
+
+  evaluation <- caret::confusionMatrix(
+  data = predictions_factor,
+  reference = y_test,
+  mode = "everything"
+  )
+
+
+  # --- 6. RETURN FINAL RESULTS ---
+  final_output <- list(
+  trained_model = model_results$model,
+  dfm_template = fit,
+  class_levels = levels(y_test),
+  ngram_size_used = n_gram,
+  vectorize_test_function = BOW_test,
+  evaluation_report = evaluation
+  )
+
+  return(final_output)
+  }

@@ -18,25 +18,25 @@
 #' @importFrom stats predict
 #'
 #' @export
-rf_model <- function(train_vectorized, Y, test_vectorized) {
+rf_model <- function(train_vectorized, Y, test_vectorized,parallel = FALSE) {
 
-  cat("\n--- Training Random Forest Model (with ranger) ---\n")
+  message("\n--- Training Random Forest Model (with ranger) ---\n")
 
   # --- Convert sparse DFM to a dense matrix ---
-  cat("  - Converting sparse DFM to dense matrix...\n")
   X_train_matrix <- as.matrix(train_vectorized)
   X_test_matrix <- as.matrix(test_vectorized)
 
-  set.seed(42)
+  threads <- if (isTRUE(parallel)) parallel::detectCores() - 1 else 1
 
   # --- Train the model ---
-  cat("  - Training model with 100 trees (in parallel)...\n")
   train_df_for_ranger <- data.frame(Y, X_train_matrix, check.names = TRUE) # Being explicit
 
   ranger_model <- ranger(
     dependent.variable.name = "Y",
     data = train_df_for_ranger,
-    num.trees = 100
+    num.trees = 100,
+    num.threads = threads, # Control parallelism here
+    verbose = FALSE
   )
 
 
@@ -58,7 +58,7 @@ rf_model <- function(train_vectorized, Y, test_vectorized) {
     model = ranger_model
   )
 
-  cat("Ranger training complete.\n")
+  message("Ranger training complete.\n")
 
   return(results)
 }

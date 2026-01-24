@@ -20,11 +20,9 @@
 #' @importFrom doParallel registerDoParallel
 #'
 #' @export
-logit_model <- function(train_vectorized, Y, test_vectorized){
-  cat("\n--- Running Logistic Regression (logit) Function ---\n")
+logit_model <- function(train_vectorized, Y, test_vectorized, parallel=F){
+  message("\n--- Running Logistic Regression (logit) Function ---\n")
 
-  # Set a seed for reproducible cross-validation results
-  set.seed(42)
 
   cat("1. Training the glmnet model with 5-fold cross-validation...\n")
   cv_model <- cv.glmnet(
@@ -33,7 +31,7 @@ logit_model <- function(train_vectorized, Y, test_vectorized){
     family = "multinomial", # This specifies logistic regression
     alpha = 1,           # This specifies Lasso regularization (great for text)
     nfolds = 5,          # Number of cross-validation folds
-    parallel = TRUE      # Tell glmnet to use the parallel cores we registered
+    parallel = parallel     # Tell glmnet to use the parallel core
   )
   cat("   - CV complete. Best lambda (lambda.min) found:", round(cv_model$lambda.min, 6), "\n")
 
@@ -45,7 +43,7 @@ logit_model <- function(train_vectorized, Y, test_vectorized){
     pred = y_pred,
     model = cv_model
   )
-  cat("--- Logit function complete. Returning results. ---\n")
+  message("--- Logit function complete. Returning results. ---\n")
   return(results)
 
 }

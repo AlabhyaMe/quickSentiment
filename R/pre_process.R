@@ -18,11 +18,30 @@
 #' @return A character vector of the cleaned and preprocessed text.
 #'
 #' @importFrom stringr str_replace_all str_remove_all str_squish
-#' @importFrom quanteda tokens tokens_tolower tokens_select stopwords
+#' @importFrom quanteda tokens tokens_select
 #' @importFrom textstem lemmatize_strings
-#' @importFrom magrittr %>%
+#' @importFrom stopwords stopwords
+#'
 #'
 #' @export
+#' @examples
+#' raw_text <- c(
+#'   "This is a <b>test</b>! Visit https://example.com 😊",
+#'   "Email me at test.user@example.org [important]"
+#' )
+#'
+#' # Basic preprocessing with defaults
+#' clean_text <- pre_process(raw_text)
+#' print(clean_text)
+#'
+#' # Keep punctuation and stopwords
+#' clean_text_no_stop <- pre_process(
+#'   raw_text,
+#'   remove_stop_words = FALSE,
+#'   remove_punct = FALSE
+#' )
+#' print(clean_text_no_stop)
+
 pre_process <- function(doc_vector,
   remove_brackets = TRUE,
   remove_urls = TRUE,
@@ -34,43 +53,53 @@ pre_process <- function(doc_vector,
   remove_stop_words = TRUE,
   lemmatize = TRUE) {
 
-# --- Stage 1: String-level cleaning ---
-if (remove_brackets) {
-doc_vector <- stringr::str_replace_all(doc_vector, "\\[[^\\]]*\\]", "")
-}
-if (remove_urls) {
-doc_vector <- stringr::str_replace_all(doc_vector, "http\\S+|www\\S+|https\\S+|\\S*@\\S*\\s?", "")
-}
-if (remove_html) {
-doc_vector <- stringr::str_replace_all(doc_vector, "<.*?>", "")
-}
-if (remove_emojis_flag) {
-doc_vector <- stringr::str_remove_all(doc_vector, "[\\U0001F600-\\U0001F64F]|[\\U0001F300-\\U0001F5FF]|[\\U0001F680-\\U0001F6FF]|[\\U0001F1E0-\\U0001F1FF]")
-}
-doc_vector <- stringr::str_squish(doc_vector)
+  # Validate input
+  if (!is.atomic(doc_vector)) {
+    stop("`doc_vector` must be an atomic vector (usually character).", call. = FALSE)
+  }
 
-# --- Stage 2: Tokenization and token-level operations ---
-# Note: The original function had a complex de-tokenize/re-tokenize step for lemmatization.
-# A more efficient, standard workflow is to perform all string operations first.
-if (to_lowercase) {
-doc_vector <- base::tolower(doc_vector)
-}
-if (lemmatize) {
-doc_vector <- textstem::lemmatize_strings(doc_vector)
-}
+  # Preserve NA positions and coerce safely
+  doc_vector <- as.character(doc_vector)
 
-# Now, tokenize and remove stopwords/punctuation/numbers
-toks <- quanteda::tokens(doc_vector,
-remove_punct = remove_punct,
-remove_numbers = remove_nums)
 
-if (remove_stop_words) {
-toks <- quanteda::tokens_select(toks, pattern = quanteda::stopwords("en"), selection = "remove")
-}
+  # --- Stage 1: String-level cleaning ---
 
-# --- Final step: Convert tokens back to a single string ---
-processed_texts <- sapply(as.list(toks), paste, collapse = " ")
-names(processed_texts) <- NULL
+  if (remove_brackets) {
+    doc_vector <- stringr::str_replace_all(doc_vector, "\\[[^\\]]*\\]", " ")
+  }
+  if (remove_urls) {
+    doc_vector <- stringr::str_replace_all(doc_vector, "(?i)\\bhttps?://\\S+\\b|\\bwww\\.\\S+\\b", "")
+  }
+  if (remove_html) {
+    doc_vector <- stringr::str_replace_all(doc_vector, "<[^>]+>", "")
+  }
+  if (remove_emojis_flag) {
+    doc_vector <- stringr::str_remove_all(doc_vector, "[\\U0001F600-\\U0001F64F]|[\\U0001F300-\\U0001F5FF]|[\\U0001F680-\\U0001F6FF]|[\\U0001F1E0-\\U0001F1FF]")
+  }
+  doc_vector <- stringr::str_squish(doc_vector)
 
-return(processed_texts)
-}
+  # --- Stage 2: Tokenization and token-level operations ---
+  # A more efficient, standard workflow is to perform all string operations first.
+  if (to_lowercase) {
+    doc_vector <- base::tolower(doc_vector)
+  }
+  if (lemmatize) {
+    doc_vector <- textstem::lemmatize_strings(doc_vector)
+  }
+
+  # Now, tokenize and remove stopwords/punctuation/numbers
+  toks <- quanteda::tokens(doc_vector,
+                          remove_punct = remove_punct,
+                          remove_numbers = remove_nums)
+
+  if (remove_stop_words) {
+    toks <- quanteda::tokens_select(toks, pattern = quanteda::stopwords("en"), selection = "remove")
+  }
+
+  # --- Final step: Convert tokens back to a single string ---
+  out <- vapply(toks, function(x) paste(x, collapse = " "), character(1))
+  out <- stringr::str_squish(out)
+  return(out)
+
+
+  }

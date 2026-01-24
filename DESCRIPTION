@@ -14,6 +14,7 @@ LazyData: true
 RoxygenNote: 7.3.2
 Imports: 
     quanteda,
+    stopwords,
     dplyr,
     stringr,
     textstem,
@@ -21,6 +22,7 @@ Imports:
     ranger,
     xgboost,
     caret,
+    Matrix,
     magrittr,
     doParallel
 Suggests: 
