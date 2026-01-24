@@ -8,7 +8,7 @@ Description: Provides a complete and modular pipeline for text classification.
     (Bag-of-Words, TF-IDF), and a suite of high-performance machine learning models 
     (e.g., glmnet, ranger, xgboost). Designed to be easily extensible for 
     comparing different modeling approaches.
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2

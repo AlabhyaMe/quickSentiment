@@ -23,7 +23,7 @@ registerDoParallel()
 
 # --- 2. LOAD AND PREPARE TRAINING DATA ---
 ```{r}
-tweets <- read_csv("tweets.csv")
+tweets <- read_csv("vignettes/tweets.csv")
 set.seed(123)
 ```
 

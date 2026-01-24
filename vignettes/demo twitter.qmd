@@ -5,7 +5,7 @@ library(readr)
 
 ```{r}
 #Import tweet data
-tweets <- read_csv("tweets.csv")
+tweets <- read_csv("vignettes/tweets.csv")
 #Since value ranges from -2 to 2, make it factor of P and N
 #we might also include neutral
 
@@ -29,7 +29,7 @@ tweets$cleaned <- pre_process(tweets$Tweet)
 result_logit <- pipeline(df =tweets,
                    text_column_name = "cleaned", #name of the pre processed column
                    sentiment_column_name = "sentiment",  #name of the sentiment column
-                   vect_method = "bow",  #bow, tf or tfidf
+                   vect_method = "tfidf",  #bow, tf or tfidf
                    model_name ="logit")  #logit, rf or xgb
 
 ```
@@ -50,7 +50,7 @@ tweets$prediction_logit <- prediction(
 result_rf<- pipeline(df =tweets,
                          text_column_name = "cleaned", #name of the pre processed column
                          sentiment_column_name = "sentiment",  #name of the sentiment column
-                         vect_method = "bow",  #bow, tf or tfidf
+                         vect_method = "tfidf",  #bow, tf or tfidf
                          model_name ="rf")  #logit, rf or xgb  ## we changed the model here
 
 tweets$prediction_rf <- prediction(
@@ -65,7 +65,7 @@ tweets$prediction_rf <- prediction(
 result_xgb<- pipeline(df =tweets,
                      text_column_name = "cleaned", #name of the pre processed column
                      sentiment_column_name = "sentiment",  #name of the sentiment column
-                     vect_method = "bow",  #bow, tf or tfidf
+                     vect_method = "tfidf",  #bow, tf or tfidf
                      model_name ="xgb")  #logit, rf or xgb  we changed the model here
 
 tweets$prediction_xgb <- prediction(
@@ -77,7 +77,7 @@ tweets$prediction_xgb <- prediction(
 ```
 
 ```{r}
-# let us look at results from different model. not, we used BOW vectorization for all the model
+# let us look at results from different model. not, we used tfidf vectorization for all the model
 table(tweets$sentiment,tweets$prediction_logit)
 accuracy <- table(tweets$sentiment, tweets$prediction_logit)
 sum(diag(accuracy)) / sum(accuracy)
@@ -94,5 +94,5 @@ table(tweets$sentiment,tweets$prediction_xgb)
 accuracy <- table(tweets$sentiment, tweets$prediction_xgb)
 sum(diag(accuracy)) / sum(accuracy)
 
-#Random forest gets over 91% accuracy
+
 ```
