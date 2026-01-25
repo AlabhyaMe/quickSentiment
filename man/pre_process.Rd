@@ -46,3 +46,21 @@ This function provides a comprehensive and configurable pipeline for cleaning
 raw text data. It handles a variety of common preprocessing steps including
 removing URLs and HTML, lowercasing, stopword removal, and lemmatization.
 }
+\examples{
+raw_text <- c(
+  "This is a <b>test</b>! Visit https://example.com 😊",
+  "Email me at test.user@example.org [important]"
+)
+
+# Basic preprocessing with defaults
+clean_text <- pre_process(raw_text)
+print(clean_text)
+
+# Keep punctuation and stopwords
+clean_text_no_stop <- pre_process(
+  raw_text,
+  remove_stop_words = FALSE,
+  remove_punct = FALSE
+)
+print(clean_text_no_stop)
+}

@@ -35,8 +35,7 @@ prediction <- function(pipeline_object,
 
   new_dfm <- BOW_test(
     df[[text_column]],
-    dfm_template,
-    pipeline_object$ngram_size_used)
+    dfm_template)
 
   # --- 3. Conditional Prediction based on Model Class ---
   message("--- Making Predictions ---\n")
@@ -69,7 +68,7 @@ prediction <- function(pipeline_object,
     final_predictions <- prediction_obj$predictions
 
 
-  } else if (inherits(final_model, "xgb.Booster"))) {
+  } else if (inherits(final_model, "xgb.Booster")) {
     message("  - Detected an xgboost model. Predicting...\n")
     # 1. Convert the new DFM into the required xgb.DMatrix format
     new_dmatrix <- xgb.DMatrix(data = new_dfm)

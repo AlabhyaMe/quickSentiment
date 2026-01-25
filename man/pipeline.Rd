@@ -10,13 +10,17 @@ pipeline(
   df,
   text_column_name,
   sentiment_column_name,
-  n_gram = 1
+  n_gram = 1,
+  parallel = F,
+  stratify = TRUE
 )
 }
 \arguments{
-\item{vect_method}{A string specifying the vectorization method (e.g., "bow", "tfidf").}
+\item{vect_method}{A string specifying the vectorization method.
+Must be one of \code{"bow"}, \code{"binary"}, \code{"tf"}, or \code{"tfidf"}.}
 
-\item{model_name}{A string specifying the model to train (e.g., "logit", "rf", "xgb").}
+\item{model_name}{A string specifying the model to train.
+Must be one of \code{"logit"}, \code{"rf"}, or \code{"xgb"}.}
 
 \item{df}{The input data frame.}
 
@@ -25,6 +29,10 @@ pipeline(
 \item{sentiment_column_name}{The name of the column containing the original target labels (e.g., ratings).}
 
 \item{n_gram}{The n-gram size to use for BoW/TF-IDF. Defaults to 1.}
+
+\item{parallel}{If TRUE, runs model training in parallel. Default FALSE.}
+
+\item{stratify}{If TRUE, use stratified split by sentiment. Default TRUE.}
 }
 \value{
 A list containing the trained model object, the DFM template,
@@ -33,4 +41,17 @@ A list containing the trained model object, the DFM template,
 \description{
 This function takes a data frame with pre-cleaned text and handles the
 data splitting, vectorization, model training, and evaluation.
+}
+\examples{
+df <- data.frame(
+  text = c("good product", "excellent", "loved it", "great quality",
+           "bad service", "terrible", "hated it", "awful experience",
+           "not good", "very bad", "fantastic", "wonderful"),
+  y = c("P", "P", "P", "P", "N", "N", "N", "N", "N", "N", "P", "P")
+)
+# Note: We use a small dataset here for demonstration.
+# In real use cases, ensure you have more observations per class.
+out <- pipeline("bow", "logit", df, "text", "y")
+
+
 }

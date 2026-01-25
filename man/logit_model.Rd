@@ -4,7 +4,7 @@
 \alias{logit_model}
 \title{Train a Regularized Logistic Regression Model using glmnet}
 \usage{
-logit_model(train_vectorized, Y, test_vectorized)
+logit_model(train_vectorized, Y, test_vectorized, parallel = F)
 }
 \arguments{
 \item{train_vectorized}{The training feature matrix (e.g., a `dfm` from quanteda).
@@ -15,6 +15,8 @@ classification.}
 
 \item{test_vectorized}{The test feature matrix, which must have the same
 features as `train_vectorized`.}
+
+\item{parallel}{Logical}
 }
 \value{
 A list containing two elements:
@@ -25,4 +27,15 @@ A list containing two elements:
 This function trains a logistic regression model using Lasso regularization
 via the glmnet package. It uses cross-validation to automatically find the
 optimal regularization strength (lambda).
+}
+\examples{
+# Create dummy vectorized data
+train_matrix <- matrix(runif(100), nrow = 10)
+test_matrix <- matrix(runif(50), nrow = 5)
+y_train <- factor(sample(c("P", "N"), 10, replace = TRUE))
+
+# Run model
+model_results <- logit_model(train_matrix, y_train, test_matrix)
+print(model_results$pred)
+
 }

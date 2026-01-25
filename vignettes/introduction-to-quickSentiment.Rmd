@@ -1,29 +1,36 @@
 ---
-# ===================================================================
-# --- DEMO SCRIPT FOR THE quickSentiment PACKAGE ---
-# ===================================================================
-# This script demonstrates the full end-to-end workflow:
-# 1. Load and prepare data.
-# 2. Train a model using the main pipeline function.
-# 3. Use the trained pipeline artifacts to predict on new, unseen data.
-# ===================================================================
+title: "Introduction to quickSentiment"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to quickSentiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
 # --- 1. SETUP: LOAD LIBRARIES ---
 # -------------------------------------------------------------------
 ```{r, include = FALSE}
 library(quickSentiment)
-library(readr)
-library(dplyr)
+
 ```
 
 ```{r setup}
 library(doParallel)
-registerDoParallel()
+# CRAN limits the number of cores used during package checks
+cores <- min(2, parallel::detectCores())
+registerDoParallel(cores = cores)
 ```
 
 # --- 2. LOAD AND PREPARE TRAINING DATA ---
 ```{r}
-tweets <- read_csv("vignettes/tweets.csv")
+# Look for the file in the installed package first
+csv_path <- system.file("extdata", "tweets.csv", package = "quickSentiment")
+
+# Fallback for when you are building the package locally
+if (csv_path == "") {
+  csv_path <- "../inst/extdata/tweets.csv"
+}
+tweets <- read.csv(csv_path)
 set.seed(123)
 ```
 
@@ -35,7 +42,8 @@ set.seed(123)
 
 
 ```{r}
-tweets$cleaned <- pre_process(tweets$Tweet)
+tweets$cleaned_text <- pre_process(tweets$Tweet)
+tweets$sentiment = ifelse(tweets$Avg>0,'P','N')
 ```
 
 # --- 4. RUN THE MAIN TRAINING PIPELINE ---
@@ -54,7 +62,7 @@ result <- pipeline(
   model_name = "rf",
   
   # --- Specify the data and column names ---
-  df = demo_sample,
+  df = tweets,
   text_column_name = "cleaned_text",      # The column with our preprocessed text
   sentiment_column_name = "sentiment",    # The column with the target variable
   
@@ -69,22 +77,13 @@ result <- pipeline(
 # The training is complete. The 'result' object now contains our trained
 # model and all the necessary "artifacts" for prediction.
 ```{r}
-# --- Load new data that the model has never seen before ---
-new_df <- read_csv("your location")
 
-# --- IMPORTANT: Apply the *exact same* preprocessing to the new data ---
-new_df$cleaned_text <- pre_process(new_df$reviewText)
-
-# --- Use the generic 'prediction' function to score the new data ---
-# This function takes two main arguments:
-#  1. The 'result' object from our pipeline, which contains the trained model and templates.
-#  2. The new data frame and the name of the column with the cleaned text.
-new_df$sentimentPredict <- prediction(
+tweets$sentimentPredict <- prediction(
   pipeline_object = result,
-  df = new_df,
+  df = tweets,
   text_column = "cleaned_text"
 )
 
-print(head(new_df))
+print(head(tweets))
 ```
 

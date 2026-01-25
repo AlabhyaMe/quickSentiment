@@ -10,6 +10,7 @@
 #'   classification.
 #' @param test_vectorized The test feature matrix, which must have the same
 #'   features as `train_vectorized`.
+#' @param parallel Logical
 #'
 #' @return A list containing two elements:
 #'   \item{pred}{A vector of class predictions for the test set.}
@@ -20,6 +21,16 @@
 #' @importFrom doParallel registerDoParallel
 #'
 #' @export
+#' @examples
+#' # Create dummy vectorized data
+#' train_matrix <- matrix(runif(100), nrow = 10)
+#' test_matrix <- matrix(runif(50), nrow = 5)
+#' y_train <- factor(sample(c("P", "N"), 10, replace = TRUE))
+#'
+#' # Run model
+#' model_results <- logit_model(train_matrix, y_train, test_matrix)
+#' print(model_results$pred)
+#'
 logit_model <- function(train_vectorized, Y, test_vectorized, parallel=F){
   message("\n--- Running Logistic Regression (logit) Function ---\n")
 

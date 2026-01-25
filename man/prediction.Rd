@@ -11,7 +11,9 @@ prediction(pipeline_object, df, text_column)
 It must contain the trained model, DFM template, preprocessing function,
 and n-gram settings.}
 
-\item{new_raw_text_vector}{A character vector of new, raw documents to be scored.}
+\item{df}{A data frame containing the new data.}
+
+\item{text_column}{A string specifying the column name of the text to predict.}
 }
 \value{
 A vector of class predictions for the new data.
@@ -19,4 +21,10 @@ A vector of class predictions for the new data.
 \description{
 This is a generic prediction function that handles different model types
 and ensures consistent preprocessing and vectorization for new, unseen text.
+}
+\examples{
+\dontrun{
+preds <- prediction(my_artifacts, c("cleaned text one", "cleaned text two"))
+}
+
 }

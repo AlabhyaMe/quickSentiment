@@ -2,9 +2,10 @@
 % Please edit documentation in R/rf.R
 \name{rf_model}
 \alias{rf_model}
-\title{Train a Random Forest Model using Ranger}
+\title{functions/random_forest_fast.R
+Train a Random Forest Model using Ranger}
 \usage{
-rf_model(train_vectorized, Y, test_vectorized)
+rf_model(train_vectorized, Y, test_vectorized, parallel = FALSE)
 }
 \arguments{
 \item{train_vectorized}{The training feature matrix (e.g., a `dfm` from quanteda).}
@@ -13,6 +14,8 @@ rf_model(train_vectorized, Y, test_vectorized)
 
 \item{test_vectorized}{The test feature matrix, which must have the same
 features as `train_vectorized`.}
+
+\item{parallel}{Logical}
 }
 \value{
 A list containing two elements:
@@ -23,4 +26,15 @@ A list containing two elements:
 This function trains a Random Forest model using the high-performance ranger
 package. It handles the necessary conversion from a sparse DFM to a dense
 matrix and corrects for column name inconsistencies.
+}
+\examples{
+# Create dummy vectorized data
+train_matrix <- matrix(runif(100), nrow = 10)
+test_matrix <- matrix(runif(50), nrow = 5)
+y_train <- factor(sample(c("P", "N"), 10, replace = TRUE))
+
+# Run model
+model_results <- rf_model(train_matrix, y_train, test_matrix)
+print(model_results$pred)
+
 }

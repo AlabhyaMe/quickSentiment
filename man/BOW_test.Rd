@@ -4,25 +4,25 @@
 \alias{BOW_test}
 \title{Transform New Text into a Document-Feature Matrix}
 \usage{
-BOW_test(doc, training_dfm, weighting_scheme = "count", ngram_size = 1)
+BOW_test(doc, fit)
 }
 \arguments{
 \item{doc}{A character vector of new documents to be processed.}
 
-\item{training_dfm}{The `dfm` object created by `BOW_train` that will be
-used as a template for matching features.}
-
-\item{weighting_scheme}{A string specifying the weighting to apply. Must be
-the same as used in `BOW_train`. One of "count", "tf", or "tfidf".}
-
-\item{ngram_size}{The maximum n-gram size. Must be the same as used in
-`BOW_train`. Defaults to 1.}
+\item{fit}{A fitted BoW object returned by \code{BOW_train()}.}
 }
 \value{
-A quanteda `dfm` object that is perfectly aligned with the training DFM.
+A quanteda \code{dfm} aligned to the training features.
 }
 \description{
 This function takes a character vector of new documents and transforms it
 into a DFM that has the exact same features as a pre-fitted training DFM,
 ensuring consistency for prediction.
+}
+\examples{
+train_txt <- c("apple orange banana", "apple apple")
+fit <- BOW_train(train_txt, weighting_scheme = "bow")
+new_txt <- c("banana pear", "orange apple")
+test_dfm <- BOW_test(new_txt, fit)
+test_dfm
 }

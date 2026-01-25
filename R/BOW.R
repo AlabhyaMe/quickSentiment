@@ -22,7 +22,7 @@
 #' fit$dfm_template
 #'
 BOW_train <- function(doc,weighting_scheme = "bow",ngram_size=1) {
-
+  idf_vector <- NULL
   #check for proper inputs
   if (!weighting_scheme %in% c("bow", "binary", "tf", "tfidf")) {
     stop("`weighting_scheme` must be one of 'bow', 'binary', 'tf', or 'tfidf'.",

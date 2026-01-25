@@ -17,19 +17,20 @@
 #' @return A list containing the trained model object, the DFM template,
 #'   class levels, and a comprehensive evaluation report.
 #' @importFrom caret createDataPartition confusionMatrix
-#' @importFrom stats factor
 #' @importFrom parallel detectCores makeCluster stopCluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom foreach registerDoSEQ
 #' @export
 #' @examples
-#'
 #' df <- data.frame(
-#'   text = c("good product","bad service","loved it","hated it","bad experience","terrible quality","excellent","awful","very good","very bad"),
-#'   y = c("P","N","P","N","N","N","P","N","P","N")
+#'   text = c("good product", "excellent", "loved it", "great quality",
+#'            "bad service", "terrible", "hated it", "awful experience",
+#'            "not good", "very bad", "fantastic", "wonderful"),
+#'   y = c("P", "P", "P", "P", "N", "N", "N", "N", "N", "N", "P", "P")
 #' )
+#' # Note: We use a small dataset here for demonstration.
+#' # In real use cases, ensure you have more observations per class.
 #' out <- pipeline("bow", "logit", df, "text", "y")
-#' out$evaluation_report
 #'
 #'
 pipeline <- function(vect_method,
@@ -136,7 +137,7 @@ pipeline <- function(vect_method,
 
 
   # --- 5. EVALUATION ---
-  message("\n--- Evaluating Model Performance ---\n")
+
   predictions <- model_results$pred
   predictions_factor <- factor(predictions, levels = levels(y_test))
 

@@ -15,7 +15,7 @@ RoxygenNote: 7.3.2
 Imports: 
     quanteda,
     stopwords,
-    dplyr,
+    foreach,
     stringr,
     textstem,
     glmnet,
@@ -25,7 +25,8 @@ Imports:
     Matrix,
     magrittr,
     doParallel
+VignetteBuilder: knitr
 Suggests: 
     knitr,
     rmarkdown
-VignetteBuilder: knitr
+
