@@ -24,6 +24,9 @@ You can install the development version of quickSentiment from GitHub with:
 ```bash
 # install.packages("devtools")
 devtools::install_github("AlabhyaMe/quickSentiment")
+# UPDATES: The package is now live in CRAN. You can download it directly in RStudio, or
+install.package("quickSentiment")
+
 ```
 Core Workflow: The Three Main Functions
 The quickSentiment workflow is designed to be logical and flexible, centered around three key functions.
