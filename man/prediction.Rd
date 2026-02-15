@@ -23,8 +23,10 @@ This is a generic prediction function that handles different model types
 and ensures consistent preprocessing and vectorization for new, unseen text.
 }
 \examples{
-\dontrun{
+\donttest{
+if (exists("my_artifacts")) {
 preds <- prediction(my_artifacts, c("cleaned text one", "cleaned text two"))
+ }
 }
 
 }

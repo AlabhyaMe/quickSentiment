@@ -26,7 +26,7 @@
 #' @export
 #' @examples
 #' raw_text <- c(
-#'   "This is a <b>test</b>! Visit https://example.com 😊",
+#'   "This is a <b>test</b>! Visit https://example.com",
 #'   "Email me at test.user@example.org [important]"
 #' )
 #'

@@ -1,13 +1,15 @@
 Package: quickSentiment
 Title: A Fast and Flexible Pipeline for Text Classification
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person("Alabhya", "Dahal", email = "alabhya.dahal@gmail.com", role = c("aut", "cre"))
-Description: Provides a complete and modular pipeline for text classification. 
-    Includes functions for text preprocessing, multiple vectorization methods 
-    (Bag-of-Words, TF-IDF), and a suite of high-performance machine learning models 
-    (e.g., glmnet, ranger, xgboost). Designed to be easily extensible for 
-    comparing different modeling approaches.
+Description: A high-level wrapper that simplifies text classification into three streamlined steps: preprocessing, 
+      model training, and prediction. 
+    It unifies the interface for multiple algorithms (including 'glmnet', 
+    'ranger', and 'xgboost') and vectorization methods (Bag-of-Words, Term Frequency-Inverse Document Frequency (TF-IDF)), 
+    allowing users to go from raw text to a trained sentiment model in two function 
+    calls. The resulting model artifact automatically handles preprocessing for 
+    new datasets in the third step, ensuring consistent prediction pipelines.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -21,6 +23,7 @@ Imports:
     glmnet,
     ranger,
     xgboost,
+    naivebayes,
     caret,
     Matrix,
     magrittr,
@@ -28,5 +31,6 @@ Imports:
 VignetteBuilder: knitr
 Suggests: 
     knitr,
-    rmarkdown
-
+    rmarkdown,
+    spelling
+Language: en-US

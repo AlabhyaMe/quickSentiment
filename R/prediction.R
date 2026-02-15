@@ -17,8 +17,10 @@
 #'
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' if (exists("my_artifacts")) {
 #' preds <- prediction(my_artifacts, c("cleaned text one", "cleaned text two"))
+#'  }
 #' }
 #'
 prediction <- function(pipeline_object,
@@ -44,23 +46,30 @@ prediction <- function(pipeline_object,
   final_predictions <- NULL
 
   # Check the class of the model object
-  if (inherits(final_model, "cv.glmnet")) {
-
-    message("  - Detected a glmnet model. Using predict.cv.glmnet().\n")
+  # Logistic Model
+  if (inherits(final_model, "cv.glmnet") || inherits(final_model, "glmnet")) {
+    s_val <- if (inherits(final_model, "cv.glmnet")) "lambda.min" else pipeline_object$best_lambda
+    message("  - Detected a (cv)glmnet model. Predicting...\n")
     final_predictions <- stats::predict(final_model,
                                  newx = new_dfm,
-                                 s = "lambda.min",
+                                 s = s_val,
                                  type = "class")
     # glmnet returns a matrix, so we extract the first column
     final_predictions <- final_predictions[, 1]
-
+  # Naive Bayesian    
+  } else if (inherits(final_model, "multinomial_naive_bayes")) {
+    
+    message("  - Detected a Naive Bayes model. Predicting...\n")
+    final_predictions <- stats::predict(final_model, newdata = new_dfm)
+  
+  # Random Forest
   } else if (inherits(final_model, "ranger")) {
 
-    message("  - Detected a ranger model. Using predict.train().\n")
+    message("  - Detected a ranger model. Predicting...\n")
     # Models like ranger/randomForest need a dense matrix
     new_dense_matrix <- as.matrix(new_dfm)
 
-    cat("Step 4: Correcting column names for ranger model...\n")
+    message("Step 4: Correcting column names for ranger model...\n")
     model_colnames <- final_model$forest$independent.variable.names
     colnames(new_dense_matrix) <- model_colnames
 

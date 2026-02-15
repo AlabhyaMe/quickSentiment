@@ -84,6 +84,5 @@ tweets$sentimentPredict <- prediction(
   text_column = "cleaned_text"
 )
 
-print(head(tweets))
 ```
 
