@@ -1,5 +1,4 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
-
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 
 
