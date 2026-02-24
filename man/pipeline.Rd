@@ -12,8 +12,7 @@ pipeline(
   sentiment_column_name,
   n_gram = 1,
   tune = FALSE,
-  parallel = FALSE,
-  stratify = TRUE
+  parallel = FALSE
 )
 }
 \arguments{
@@ -42,12 +41,10 @@ Defaults to \code{"logistic_regression"}.
 
 \item{n_gram}{The n-gram size to use for BoW/TF-IDF. Defaults to 1.}
 
-\item{tune}{Logical. If TRUE, the pipeline will perform hyperparameter tuning 
+\item{tune}{Logical. If TRUE, the pipeline will perform hyperparameter tuning
 for the selected model. Defaults to FALSE. [NEW]}
 
 \item{parallel}{If TRUE, runs model training in parallel. Default FALSE.}
-
-\item{stratify}{If TRUE, use stratified split by sentiment. Default TRUE.}
 }
 \value{
 A list containing the trained model object, the DFM template,
@@ -66,7 +63,6 @@ df <- data.frame(
 )
 
 
-out1 <- pipeline("bow", "logistic_regression", df, "text", "y")
-out2 <- pipeline("tfidf", "rf", df, "text", "y") # 'rf' automatically converts to 'random_forest'
+out <- pipeline("bow", "naive_bayes", df, "text", "y")
 
 }

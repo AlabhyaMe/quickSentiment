@@ -4,7 +4,7 @@
 \alias{prediction}
 \title{Predict Sentiment on New Data Using a Saved Pipeline Artifact}
 \usage{
-prediction(pipeline_object, df, text_column)
+prediction(pipeline_object, df, text_column, threshold = NULL)
 }
 \arguments{
 \item{pipeline_object}{A list object returned by the main `pipeline()` function.
@@ -14,9 +14,12 @@ and n-gram settings.}
 \item{df}{A data frame containing the new data.}
 
 \item{text_column}{A string specifying the column name of the text to predict.}
+
+\item{threshold}{Numeric. Optional custom threshold for binary classification. 
+If NULL, uses the optimized threshold from training (if available).}
 }
 \value{
-A vector of class predictions for the new data.
+The original `df` with appended `predicted_class` and probability columns.
 }
 \description{
 This is a generic prediction function that handles different model types
@@ -25,7 +28,8 @@ and ensures consistent preprocessing and vectorization for new, unseen text.
 \examples{
 \donttest{
 if (exists("my_artifacts")) {
-preds <- prediction(my_artifacts, c("cleaned text one", "cleaned text two"))
+  dummy_df <- data.frame(text = c("loved it", "hated it"), stringsAsFactors = FALSE)
+  preds <- prediction(my_artifacts, df = dummy_df, text_column = "text")
  }
 }
 

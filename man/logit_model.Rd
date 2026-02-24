@@ -30,6 +30,7 @@ features as `train_vectorized`.}
 A list containing two elements:
   \item{pred}{A vector of class predictions for the test set.}
   \item{model}{The final, trained `cv.glmnet` model object.}
+  \item{best_lambda}{The optimal lambda value found during cross-validation.}
 }
 \description{
 This function trains a logistic regression model using Lasso regularization
@@ -37,13 +38,18 @@ via the glmnet package. It uses cross-validation to automatically find the
 optimal regularization strength (lambda).
 }
 \examples{
-# Create dummy vectorized data
-train_matrix <- matrix(runif(100), nrow = 10)
-test_matrix <- matrix(runif(50), nrow = 5)
+\dontrun{
+# Create dummy vectorized training and test data
+train_matrix <- matrix(runif(100), nrow = 10, ncol = 10)
+test_matrix <- matrix(runif(50), nrow = 5, ncol = 10)
+
+# Provide column names (vocabulary) required by glmnet
+colnames(train_matrix) <- paste0("word", 1:10)
+colnames(test_matrix) <- paste0("word", 1:10)
+
 y_train <- factor(sample(c("P", "N"), 10, replace = TRUE))
 
-# Run model
+# Run logistic regression model (glmnet)
 model_results <- logit_model(train_matrix, y_train, test_matrix)
-print(model_results$pred)
-
+}
 }
