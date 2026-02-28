@@ -47,7 +47,7 @@ library(readr)
 my_data <- read_csv("path/to/your/data.csv")
 
 # Create a new column of cleaned text
-my_data$cleaned_text <- pre_process_final(my_data$reviewText)
+my_data$cleaned_text <- pre_process(my_data$reviewText)
 ```
 
 2. pipeline(): The Main Engine for Training
