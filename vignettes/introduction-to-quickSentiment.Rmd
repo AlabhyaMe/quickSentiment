@@ -81,8 +81,7 @@ result <- pipeline(
 
 predicted_tweets <- prediction(
   pipeline_object = result,
-  df = tweets,
-  text_column = "cleaned_text"
+  tweets$cleaned_text
 )
 head(predicted_tweets)
 ```

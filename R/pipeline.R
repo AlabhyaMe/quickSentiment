@@ -112,12 +112,17 @@ pipeline <- function(vect_method,
   }
 
   message(paste0("--- Running Pipeline: ", toupper(vect_method), " + ", toupper(model_name), " ---\n"))
-  df$sentiment <- as.factor(df[[sentiment_column_name]])
+
+  #drop unnecessary columns and ensure sentiment is a factor
+  df <- df[, c(text_column_name, sentiment_column_name), drop = FALSE]
+  names(df)[names(df) == sentiment_column_name] <- "sentiment"
+  df$sentiment <- as.factor(df$sentiment)
 
   # --- 1. DATA CLEANING & PREP ---
   # Remove rows where the cleaned text is empty
 
   initial_rows <- nrow(df)
+
   df[[text_column_name]] <- trimws(as.character(df[[text_column_name]]))
   df[[text_column_name]][df[[text_column_name]] == ""] <- NA_character_
 
@@ -135,7 +140,7 @@ pipeline <- function(vect_method,
   if (nlevels(df$sentiment) < 2) stopf("Need at least 2 sentiment classes after filtering.")
 
   # --- 2. TRAIN/TEST SPLIT ---
-  target_vector <- df[[sentiment_column_name]]
+  target_vector <- df$sentiment
 
   # Base R Stratified Split
   train_idx <- unlist(lapply(split(seq_along(target_vector), target_vector), function(idx) {
@@ -232,12 +237,17 @@ pipeline <- function(vect_method,
       guidance = roc_guidance
       )
 
-      # Print the final completion message
+  # Print the final completion message
   message("\n======================================================")
   message(sprintf(" PIPELINE COMPLETE: %s + %s", toupper(vect_method), toupper(model_name)))
-  message(sprintf(" Model AUC: %.3f", roc_guidance$auc))
-  message(sprintf(" Recommended ROC Threshold: %.3f", roc_guidance$best_threshold))
+
+  if (!is.null(roc_guidance)) {
+    message(sprintf(" Model AUC: %.3f", roc_guidance$auc))
+    message(sprintf(" Recommended ROC Threshold: %.3f", roc_guidance$best_threshold))
+  } else {
+    message(" (ROC/AUC not calculated for multi-class data)")
+  }
   message("======================================================\n")
 
   return(final_output)
-  }
+}

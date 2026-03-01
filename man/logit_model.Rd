@@ -29,6 +29,7 @@ features as `train_vectorized`.}
 \value{
 A list containing two elements:
   \item{pred}{A vector of class predictions for the test set.}
+  \item{probs}{A matrix of predicted probabilities.}
   \item{model}{The final, trained `cv.glmnet` model object.}
   \item{best_lambda}{The optimal lambda value found during cross-validation.}
 }

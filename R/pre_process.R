@@ -13,7 +13,10 @@
 #' @param to_lowercase A logical value indicating whether to convert text to lowercase.
 #' @param remove_punct A logical value indicating whether to remove punctuation.
 #' @param remove_stop_words A logical value indicating whether to remove English stopwords.
+#' @param custom_stop_words A character vector of additional custom words to remove (e.g., c("rt", "via")). Default is NULL.
+#' @param keep_words A character vector of words to protect from deletion (e.g., c("no", "not", "nor")). Default is NULL.
 #' @param lemmatize A logical value indicating whether to lemmatize words to their dictionary form.
+#'
 #'
 #' @return A character vector of the cleaned and preprocessed text.
 #'
@@ -51,6 +54,8 @@ pre_process <- function(doc_vector,
   to_lowercase = TRUE,
   remove_punct = TRUE,
   remove_stop_words = TRUE,
+  custom_stop_words = NULL,
+  keep_words = NULL,
   lemmatize = TRUE) {
 
   # Validate input
@@ -83,21 +88,43 @@ pre_process <- function(doc_vector,
   if (to_lowercase) {
     doc_vector <- base::tolower(doc_vector)
   }
-  if (lemmatize) {
-    doc_vector <- textstem::lemmatize_strings(doc_vector)
-  }
+
 
   # Now, tokenize and remove stopwords/punctuation/numbers
   toks <- quanteda::tokens(doc_vector,
                           remove_punct = remove_punct,
                           remove_numbers = remove_nums)
 
-  if (remove_stop_words) {
-    toks <- quanteda::tokens_select(toks, pattern = quanteda::stopwords("en"), selection = "remove")
+  # --- Stopword Removal Logic ---
+  # Stopwords, custom stop words, and the new "keep words" l
+  if (remove_stop_words || !is.null(custom_stop_words)) {
+
+    stops_to_remove <- character(0)
+
+    if (remove_stop_words) {
+      stops_to_remove <- quanteda::stopwords("en")
+    }
+
+    if (!is.null(custom_stop_words)) {
+      stops_to_remove <- c(stops_to_remove, tolower(custom_stop_words))
+    }
+
+    # If the user specified words to keep, remove them from the 'stops_to_remove' list
+    if (!is.null(keep_words)) {
+      stops_to_remove <- setdiff(stops_to_remove, tolower(keep_words))
+    }
+
+    # Filter the tokens
+    toks <- quanteda::tokens_select(toks, pattern = stops_to_remove, selection = "remove")
   }
+
+
 
   # --- Final step: Convert tokens back to a single string ---
   out <- vapply(toks, function(x) paste(x, collapse = " "), character(1))
+  if (lemmatize) {
+    out <- textstem::lemmatize_strings(out)
+  }
   out <- stringr::str_squish(out)
   return(out)
 

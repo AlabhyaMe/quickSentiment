@@ -4,22 +4,22 @@
 \alias{prediction}
 \title{Predict Sentiment on New Data Using a Saved Pipeline Artifact}
 \usage{
-prediction(pipeline_object, df, text_column, threshold = NULL)
+prediction(pipeline_object, text_column, threshold = NULL)
 }
 \arguments{
 \item{pipeline_object}{A list object returned by the main `pipeline()` function.
 It must contain the trained model, DFM template, preprocessing function,
 and n-gram settings.}
 
-\item{df}{A data frame containing the new data.}
-
 \item{text_column}{A string specifying the column name of the text to predict.}
 
-\item{threshold}{Numeric. Optional custom threshold for binary classification. 
+\item{threshold}{Numeric. Optional custom threshold for binary classification.
 If NULL, uses the optimized threshold from training (if available).}
+
+\item{df}{A data frame containing the new data.}
 }
 \value{
-The original `df` with appended `predicted_class` and probability columns.
+A data frame containing the `predicted_class` and probability columns.
 }
 \description{
 This is a generic prediction function that handles different model types

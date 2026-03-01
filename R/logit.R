@@ -15,6 +15,7 @@
 #'
 #' @return A list containing two elements:
 #'   \item{pred}{A vector of class predictions for the test set.}
+#'   \item{probs}{A matrix of predicted probabilities.}
 #'   \item{model}{The final, trained `cv.glmnet` model object.}
 #'   \item{best_lambda}{The optimal lambda value found during cross-validation.}
 #'
@@ -102,14 +103,14 @@ logit_model <- function(train_vectorized, Y, test_vectorized, parallel=FALSE, tu
     y_pred_idx <- max.col(probs_matrix)
   }
   y_pred_internal <- factor(levels(Y)[y_pred_idx], levels = levels(Y))
-  
+
   results <- list(
     pred = y_pred_internal, #category
     probs = probs_matrix,
     model = final_fit,
     best_lambda = best_s
   )
-  
+
   return(results)
 
 }

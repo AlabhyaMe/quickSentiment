@@ -1,14 +1,16 @@
-## Resubmission
-This is a resubmission. I have addressed the feedback from Benjamin Altmann:
-* Expanded "TF-IDF" to "Term Frequency-Inverse Document Frequency" in DESCRIPTION.
-* Replaced all instances of T/F with TRUE/FALSE in function arguments and examples.
-* Replaced \dontrun{} with \donttest{} in examples.
-* Replaced print()/cat() with message() in R/logit.R and R/prediction.R to allow suppression.
-* Removed set.seed() from within functions in R/pipeline.R.
-
 ## Test environments
-* local Windows 11 x64, R 4.4.1
-* win-builder (devel and release)
+* local Windows install, R 4.4.0
 
 ## R CMD check results
-0 ERRORs | 0 WARNINGs | 0 NOTEs
+0 errors | 0 warnings | 1 note
+
+* Note: `checking for future file timestamps ... NOTE unable to verify current time`
+  * Explanation: This is a harmless local network/firewall timeout issue when checking file modification dates. It does not affect the package build, source code, or functionality.
+
+## Reverse dependencies
+There are currently no reverse dependencies for this package.
+
+## Major Changes in v0.3.1
+* **Removed Dependency:** Dropped `caret` entirely. Replaced it with lightweight, native base-R logic for data splitting and confusion matrix evaluation to reduce installation footprint.
+* **Bug Fixes:** Resolved a matrix alignment bug in the Random Forest TF-IDF prediction engine. 
+* **Optimizations:** Migrated to native `dgCMatrix` structures and implemented strict column-subsetting inside the main pipeline to prevent memory spikes on massive datasets.

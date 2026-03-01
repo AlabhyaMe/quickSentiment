@@ -68,9 +68,10 @@ rf_model <- function(train_vectorized, Y, test_vectorized, parallel = FALSE, tun
       temp_model <- ranger::ranger(
         x = X_train_matrix,
         y = Y,
-        num.trees = 500,
+        num.trees = 200,
         mtry = m,
         num.threads = threads,
+        importance = "impurity",
         probability = TRUE,   # We need probabilities for ROC/AUC later
         verbose = FALSE
       )
@@ -92,7 +93,7 @@ rf_model <- function(train_vectorized, Y, test_vectorized, parallel = FALSE, tun
     ranger_model <- ranger::ranger(
       x = X_train_matrix,
       y = Y,
-      num.trees = 500,
+      num.trees = 200,
       mtry = actual_mtry,
       num.threads = threads,
       importance = "impurity",
@@ -100,6 +101,40 @@ rf_model <- function(train_vectorized, Y, test_vectorized, parallel = FALSE, tun
       probability = TRUE
     )
   }
+
+  #Required for TF-IDF
+  expected_cols <- colnames(X_train_matrix)
+
+  # Handle total name wipe
+  if (is.null(colnames(X_test_matrix)) && ncol(X_test_matrix) == length(expected_cols)) {
+    colnames(X_test_matrix) <- expected_cols
+  }
+
+  current_cols <- colnames(X_test_matrix)
+  if (!is.null(current_cols)) {
+    missing_cols <- setdiff(expected_cols, current_cols)
+    if (length(missing_cols) > 0) {
+      # Build a sparse matrix of 0s for the missing words
+      zero_padding <- Matrix::Matrix(0,
+                                     nrow = nrow(X_test_matrix),
+                                     ncol = length(missing_cols),
+                                     sparse = TRUE)
+      # Safely assign names to the padding
+      dimnames(zero_padding) <- list(rownames(X_test_matrix), missing_cols)
+
+      # Bind the missing columns back
+      X_test_matrix <- cbind(X_test_matrix, zero_padding)
+
+      # THE CRITICAL FIX: Force the names back on!
+      # (Prevents cbind from stripping names)
+      colnames(X_test_matrix) <- c(current_cols, missing_cols)
+    }
+  } else {
+    stop("Fatal error: Test matrix lost column names and dimensions do not match training data.")
+  }
+
+   X_test_matrix <- X_test_matrix[, expected_cols, drop = FALSE]
+
 
   predictions_obj <- predict(ranger_model, data = X_test_matrix)
   probs_matrix <- predictions_obj$predictions

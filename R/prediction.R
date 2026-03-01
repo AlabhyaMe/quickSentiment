@@ -8,10 +8,10 @@
 #'   and n-gram settings.
 #' @param df A data frame containing the new data.
 #' @param text_column A string specifying the column name of the text to predict.
-#' @param threshold Numeric. Optional custom threshold for binary classification. 
+#' @param threshold Numeric. Optional custom threshold for binary classification.
 #'   If NULL, uses the optimized threshold from training (if available).
 #'
-#' @return The original `df` with appended `predicted_class` and probability columns.
+#' @return A data frame containing the `predicted_class` and probability columns.
 #'
 #' @importFrom stats predict
 #' @importFrom xgboost xgb.DMatrix
@@ -26,7 +26,6 @@
 #' }
 #'
 prediction <- function(pipeline_object,
-                       df,
                        text_column,
                        threshold = NULL) {
 
@@ -39,7 +38,7 @@ prediction <- function(pipeline_object,
   message("--- Preparing new data for prediction ---\n")
 
   new_dfm <- BOW_test(
-    df[[text_column]],
+    text_column,
     dfm_template)
 
   # Set Up Threshold
@@ -57,7 +56,7 @@ prediction <- function(pipeline_object,
 
   # --- 3. Conditional Prediction based on Model Class ---
   message("--- Making Predictions ---\n")
-  # Check the class of the model object
+
   results <- route_prediction(
     new_data_vectorized = new_dfm,
     qs_artifact = pipeline_object,
@@ -65,17 +64,18 @@ prediction <- function(pipeline_object,
     Y_levels = class_levels,
     threshold = threshold
   )
-# --- 4. FORMAT FINAL OUTPUT ---
-  # Append the predicted classes directly to the user's original dataframe
-  df$predicted_class <- results$pred
-  
-  # Format the probability matrix into a dataframe with nice column names
+  #--- 4.  Output
+  final_output <- data.frame(predicted_class = results$pred)
+
   prob_df <- as.data.frame(results$probs)
   colnames(prob_df) <- paste0("prob_", colnames(prob_df))
-  
-  # Bind the probability columns to the right side of the dataframe
-  final_output <- cbind(df, prob_df)
-  
+
+  # Bind the probabilities to the class predictions
+  final_output <- cbind(final_output, prob_df)
+
+  message("--- Prediction Complete ---\n")
+  return(final_output)
+
   message("--- Prediction Complete ---\n")
   return(final_output)
 }

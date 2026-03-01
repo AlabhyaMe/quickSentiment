@@ -20,6 +20,13 @@ features as `train_vectorized`}
 
 \item{tune}{Logical. If TRUE, tests different Laplace smoothing values.}
 }
+\value{
+A list containing four elements:
+  \item{pred}{A vector of class predictions for the test set.}
+  \item{probs}{A matrix of predicted probabilities.}
+  \item{model}{The final, trained `naivebayes` model object.}
+  \item{best_lambda}{Placeholder (NULL) for pipeline consistency.}
+}
 \description{
 Multinomial Naive Bayes for Text Classification
 }

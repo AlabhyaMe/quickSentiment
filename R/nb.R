@@ -8,6 +8,11 @@
 #'   features as `train_vectorized`
 #' @param parallel Logical
 #' @param tune Logical. If TRUE, tests different Laplace smoothing values.
+#' @return A list containing four elements:
+#'   \item{pred}{A vector of class predictions for the test set.}
+#'   \item{probs}{A matrix of predicted probabilities.}
+#'   \item{model}{The final, trained `naivebayes` model object.}
+#'   \item{best_lambda}{Placeholder (NULL) for pipeline consistency.}
 #' @importFrom naivebayes multinomial_naive_bayes
 #' @importFrom stats predict
 #' @importFrom methods as

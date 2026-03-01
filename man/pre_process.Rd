@@ -14,6 +14,8 @@ pre_process(
   to_lowercase = TRUE,
   remove_punct = TRUE,
   remove_stop_words = TRUE,
+  custom_stop_words = NULL,
+  keep_words = NULL,
   lemmatize = TRUE
 )
 }
@@ -35,6 +37,10 @@ pre_process(
 \item{remove_punct}{A logical value indicating whether to remove punctuation.}
 
 \item{remove_stop_words}{A logical value indicating whether to remove English stopwords.}
+
+\item{custom_stop_words}{A character vector of additional custom words to remove (e.g., c("rt", "via")). Default is NULL.}
+
+\item{keep_words}{A character vector of words to protect from deletion (e.g., c("no", "not", "nor")). Default is NULL.}
 
 \item{lemmatize}{A logical value indicating whether to lemmatize words to their dictionary form.}
 }
