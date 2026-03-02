@@ -6,7 +6,6 @@
 #' @param pipeline_object A list object returned by the main `pipeline()` function.
 #'   It must contain the trained model, DFM template, preprocessing function,
 #'   and n-gram settings.
-#' @param df A data frame containing the new data.
 #' @param text_column A string specifying the column name of the text to predict.
 #' @param threshold Numeric. Optional custom threshold for binary classification.
 #'   If NULL, uses the optimized threshold from training (if available).
@@ -21,11 +20,11 @@
 #' \donttest{
 #' if (exists("my_artifacts")) {
 #'   dummy_df <- data.frame(text = c("loved it", "hated it"), stringsAsFactors = FALSE)
-#'   preds <- prediction(my_artifacts, df = dummy_df, text_column = "text")
+#'   preds <- predict_sentiment(my_artifacts, df = dummy_df, text_column = "text")
 #'  }
 #' }
 #'
-prediction <- function(pipeline_object,
+predict_sentiment <- function(pipeline_object,
                        text_column,
                        threshold = NULL) {
 
@@ -76,6 +75,4 @@ prediction <- function(pipeline_object,
   message("--- Prediction Complete ---\n")
   return(final_output)
 
-  message("--- Prediction Complete ---\n")
-  return(final_output)
 }

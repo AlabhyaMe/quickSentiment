@@ -18,9 +18,8 @@
 #'     \item \code{"xgboost"} (Alias: \code{"xgb"})
 #'     \item \code{"logistic_regression"} (Alias: \code{"logit"}, \code{"glm"})
 #'   }
-#' @param df The input data frame.
-#' @param text_column_name The name of the column containing the **preprocessed** text.
-#' @param sentiment_column_name The name of the column containing the original target labels (e.g., ratings).
+#' @param text_vector A character vector containing the **preprocessed** text.
+#' @param sentiment_vector A vector or factor containing the target labels (e.g., ratings).
 #' @param n_gram The n-gram size to use for BoW/TF-IDF. Defaults to 1.
 #' @param parallel If TRUE, runs model training in parallel. Default FALSE.
 #' @param tune Logical. If TRUE, the pipeline will perform hyperparameter tuning
@@ -41,13 +40,12 @@
 #' )
 #'
 #'
-#' out <- pipeline("bow", "naive_bayes", df, "text", "y")
+#' out <- pipeline("bow", "naive_bayes",  text_vector = df$text, sentiment_vector = df$y)
 #'
 pipeline <- function(vect_method,
   model_name,
-  df,
-  text_column_name,
-  sentiment_column_name,
+  text_vector,
+  sentiment_vector,
   n_gram = 1,
   tune = FALSE,
   parallel=FALSE) {
@@ -95,9 +93,13 @@ pipeline <- function(vect_method,
     )
 
 
-  if (!is.data.frame(df)) stopf("`df` must be a data.frame.")
-  if (!text_column_name %in% names(df)) stopf("Column '%s' not found.", text_column_name)
-  if (!sentiment_column_name %in% names(df)) stopf("Column '%s' not found.", sentiment_column_name)
+    if (!is.atomic(text_vector)) stopf("`text_vector` must be an atomic vector (usually character).")
+    if (!is.atomic(sentiment_vector) && !is.factor(sentiment_vector)) stopf("`sentiment_vector` must be a vector or factor.")
+
+    if (length(text_vector) != length(sentiment_vector)) {
+      stopf("Length mismatch: `text_vector` has %d elements, but `label_vector` has %d elements.",
+            length(text_vector), length(sentiment_vector))
+    }
 
   #FOR GLMNET ONLY
   if (isTRUE(parallel)) {
@@ -114,61 +116,60 @@ pipeline <- function(vect_method,
   message(paste0("--- Running Pipeline: ", toupper(vect_method), " + ", toupper(model_name), " ---\n"))
 
   #drop unnecessary columns and ensure sentiment is a factor
-  df <- df[, c(text_column_name, sentiment_column_name), drop = FALSE]
-  names(df)[names(df) == sentiment_column_name] <- "sentiment"
-  df$sentiment <- as.factor(df$sentiment)
+  initial_length <- length(text_vector)
+  # Force formatting safely
+  text_vector <- trimws(as.character(text_vector))
+  text_vector[text_vector == ""] <- NA_character_
+  sentiment_vector <- as.factor(sentiment_vector)
 
-  # --- 1. DATA CLEANING & PREP ---
-  # Remove rows where the cleaned text is empty
+  # Find valid indices (where neither text nor label is NA)
+  valid_idx <- !is.na(text_vector) & !is.na(sentiment_vector)
 
-  initial_rows <- nrow(df)
+  # Subset vectors simultaneously
+  text_vector <- text_vector[valid_idx]
+  sentiment_vector <- sentiment_vector[valid_idx]
 
-  df[[text_column_name]] <- trimws(as.character(df[[text_column_name]]))
-  df[[text_column_name]][df[[text_column_name]] == ""] <- NA_character_
-
-  df <- df[!is.na(df[[text_column_name]]) & !is.na(df$sentiment), , drop = FALSE]
-
-
-  rows_dropped <- initial_rows - nrow(df)
+  rows_dropped <- initial_length - length(text_vector)
 
   if (rows_dropped > 0) {
-    warning(sprintf("Dropped %d row(s) with missing/empty text or missing labels.", rows_dropped),
+    warning(sprintf("Dropped %d element(s) with missing/empty text or missing sentiments(labels).", rows_dropped),
             call. = FALSE)
   }
+  if (length(text_vector) < 5) stopf("Not enough valid data after filtering (%d).", length(text_vector))
+  if (nlevels(sentiment_vector) < 2) stopf("Need at least 2 sentiment classes after filtering.")
 
-  if (nrow(df) < 5) stopf("Not enough rows after filtering (%d).", nrow(df))
-  if (nlevels(df$sentiment) < 2) stopf("Need at least 2 sentiment classes after filtering.")
 
   # --- 2. TRAIN/TEST SPLIT ---
-  target_vector <- df$sentiment
 
   # Base R Stratified Split
-  train_idx <- unlist(lapply(split(seq_along(target_vector), target_vector), function(idx) {
+  train_idx <- unlist(lapply(split(seq_along(sentiment_vector), sentiment_vector), function(idx) {
     sample(idx, size = round(0.8 * length(idx)))
   }))
 
   # Ensure it's a clean numeric vector
   train_idx <- as.numeric(train_idx)
 
-  data_train <- df[train_idx, ]
-  data_test <- df[-train_idx, ]
+  text_train <- text_vector[train_idx]
+  text_test <- text_vector[-train_idx]
 
-  message(paste0("Data split: ", nrow(data_train), " training rows, ", nrow(data_test), " test rows.\n"))
+  # Split Labels
+  y_train <- sentiment_vector[train_idx]
+  y_test  <- sentiment_vector[-train_idx]
+
+  message(paste0("Data split: ", length(text_train), " training elements, ", length(text_test), " test elements.\n"))
 
   # --- 3. VECTORIZATION ---
   # This now operates on the pre-cleaned text column
   message(sprintf("Vectorizing with %s (ngram=%d)...", toupper(vect_method), n_gram))
 
-  fit <- BOW_train(data_train[[text_column_name]],
+  fit <- BOW_train(text_train,
                    weighting_scheme = vect_method,
                    ngram_size = n_gram)
   X_train <- fit$dfm_template
 
-  X_test <- BOW_test(data_test[[text_column_name]],fit)
+  X_test <- BOW_test(text_test,fit)
 
-  # Prepare the response variables (y)
-  y_train <- data_train$sentiment
-  y_test <- data_test$sentiment
+
 
   # --- 4. MODEL TRAINING & PREDICTION ---
 
@@ -187,11 +188,10 @@ pipeline <- function(vect_method,
   # --- 5. EVALUATION ---
   # A Evaluation
   predictions <- model_results$pred
-  predictions_factor <- factor(predictions, levels = levels(y_test))
 
   # Using Custom function for evaluation
   evaluation <- evaluate_metrics(
-    predicted = model_results$pred,
+    predicted = predictions,
     actual = y_test
 )
 

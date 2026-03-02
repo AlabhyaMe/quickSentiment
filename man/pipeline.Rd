@@ -7,9 +7,8 @@
 pipeline(
   vect_method,
   model_name,
-  df,
-  text_column_name,
-  sentiment_column_name,
+  text_vector,
+  sentiment_vector,
   n_gram = 1,
   tune = FALSE,
   parallel = FALSE
@@ -33,11 +32,9 @@ Defaults to \code{"logistic_regression"}.
   \item \code{"logistic_regression"} (Alias: \code{"logit"}, \code{"glm"})
 }}
 
-\item{df}{The input data frame.}
+\item{text_vector}{A character vector containing the **preprocessed** text.}
 
-\item{text_column_name}{The name of the column containing the **preprocessed** text.}
-
-\item{sentiment_column_name}{The name of the column containing the original target labels (e.g., ratings).}
+\item{sentiment_vector}{A vector or factor containing the target labels (e.g., ratings).}
 
 \item{n_gram}{The n-gram size to use for BoW/TF-IDF. Defaults to 1.}
 
@@ -63,6 +60,6 @@ df <- data.frame(
 )
 
 
-out <- pipeline("bow", "naive_bayes", df, "text", "y")
+out <- pipeline("bow", "naive_bayes",  text_vector = df$text, sentiment_vector = df$y)
 
 }

@@ -62,9 +62,8 @@ result <- pipeline(
   model_name = "rf",
   
   # --- Specify the data and column names ---
-  df = tweets,
-  text_column_name = "cleaned_text",      # The column with our preprocessed text
-  sentiment_column_name = "sentiment",    # The column with the target variable
+  text_vector = tweets$cleaned_text  ,   # The column with our preprocessed text
+  sentiment_vector = tweets$sentiment,    # The column with the target variable
   
   # --- Set vectorization options ---
   # Use n_gram = 2 for unigrams + bigrams, or 1 for just unigrams
@@ -79,7 +78,7 @@ result <- pipeline(
 ## model and all the necessary "artifacts" for prediction.
 ```{r}
 
-predicted_tweets <- prediction(
+predicted_tweets <- predict_sentiment(
   pipeline_object = result,
   tweets$cleaned_text
 )
