@@ -1,6 +1,7 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 
+[READ ME MAY BE OUTDATED, PLEASE REFER TO DOCUMENTATION IN CRAN OR DOWNLOAD THE PACKAGE TO VIEW DOCUMENTATION]
 
 quickSentiment: A Fast and Flexible Pipeline for Text Classification in R
 quickSentiment is an R package designed to streamline the process of text classification. It provides a complete, end-to-end workflow from text cleaning to model training, evaluation, and prediction. Built on a modular architecture, it allows users to easily experiment with different vectorization methods and high-performance machine learning models.
@@ -17,6 +18,8 @@ Logistic Regression (via glmnet for speed and regularization)
 Random Forest (via the high-performance ranger package)
 
 XGBoost (via the industry-standard xgboost package)
+
+Naive Bayesian ( via naivebayes package)
 
 Reproducible Predictions: The pipeline returns a self-contained artifact object, bundling the trained model and all necessary components to ensure that predictions on new data are consistent and reliable.
 
@@ -59,9 +62,8 @@ Usage:
 ```bash
 # Train a TF-IDF Logistic Regression model with bigrams
 pipeline_artifacts <- pipeline(
-  df = my_data,
-  text_column_name = "cleaned_text",
-  sentiment_column_name = "rating", # The original column with ratings or labels
+  text_vector = df$cleaned_text,
+  sentiment_vector = df$rating, # The original column with ratings or labels
   vect_method = "tfidf",
   model_name = "logit",
   n_gram = 2
@@ -79,10 +81,9 @@ new_reviews <- "your new data file"
 new_rviews$cleaned <- pre_process(new_reviews$"the text column")
 
 # The prediction function uses the artifacts to ensure a consistent workflow
-final_predictions <- prediction(
-df = new_reviews
+final_predictions <- predict_sentiment(
+df$cleaned
 pipeline_object = pipeline_artifacts,
-text_column = "cleaned"
 )
 
 print(final_predictions)
