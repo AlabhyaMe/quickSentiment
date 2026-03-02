@@ -1,7 +1,7 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 
-[READ ME MAY BE OUTDATED, PLEASE REFER TO DOCUMENTATION IN CRAN OR DOWNLOAD THE PACKAGE TO VIEW DOCUMENTATION]
+[PLEASE REFER TO DOCUMENTATION IN CRAN OR DOWNLOAD THE PACKAGE TO VIEW DOCUMENTATION FOR MORE DETAILS]
 
 quickSentiment: A Fast and Flexible Pipeline for Text Classification in R
 quickSentiment is an R package designed to streamline the process of text classification. It provides a complete, end-to-end workflow from text cleaning to model training, evaluation, and prediction. Built on a modular architecture, it allows users to easily experiment with different vectorization methods and high-performance machine learning models.
@@ -77,7 +77,7 @@ Once your pipeline has run, you can use the pipeline_artifacts object it returne
 Usage:
 ```bash
 # Create a vector of new, raw text to predict on
-new_reviews <- "your new data file"
+new_reviews <- "your new data file."
 new_rviews$cleaned <- pre_process(new_reviews$"the text column")
 
 # The prediction function uses the artifacts to ensure a consistent workflow
@@ -103,18 +103,15 @@ ranger for a multi-threaded, C++ implementation of Random Forest.
 
 xgboost for its industry-leading speed and predictive accuracy.
 
+Train and test internally, returns ROC, accuracy, precision, recall, specificity, and f1_score for the user.
+
+Customized prediction function that keeps the artifact of the model consistent.  
+
 Self-Contained Artifacts: The pipeline() function returns a single R object that contains everything needed for reproducible predictions: the trained model, the DFM vocabulary template, the preprocessing function, and the n-gram settings. This "all-in-one" object prevents common errors and ensures that new data is always processed in the exact same way as the training data.
 
 Future Development
-This package is under active development. Future plans include:
+This package is stable and mature
 
-Adding more vectorization methods, such as pre-trained embeddings (Word2Vec, GloVe).
-
-Integrating topic modeling capabilities.
-
-Adding more machine learning models.
-
-License
 This package is licensed under the MIT License.
 
 
