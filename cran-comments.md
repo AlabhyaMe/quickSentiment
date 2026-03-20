@@ -1,20 +1,17 @@
-This is a resubmission of version 0.3.1. 
+This is a submission of version 0.3.2 
 
-Re-submission notes:
-- Fixed the formatting of the NEWS.md file using standard Markdown bullet points to resolve the "No news entries found" NOTE from the previous automated incoming check.
 
 ## Test environments
-* local Windows install, R 4.4.0
+* local Windows install, R 4.5.3
 
 ## R CMD check results
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 note
 
-* Note: `checking for future file timestamps ... NOTE unable to verify current time`
-  * Explanation: This is a harmless local network/firewall timeout issue when checking file modification dates. It does not affect the package build, source code, or functionality.
+
 
 ## Major package updates in 0.3.1:
-- Removed the 'caret' dependency entirely to reduce installation footprint.
-- Refactored the pipeline to use memory-efficient dgCMatrix sparse matrices.
-- Fixed a namespace issue by renaming prediction() to predict_sentiment().
-- Added new underlying functions evaluation() and route_prediction() to modularize and streamline the package architecture.
-- Added ROC/AUC threshold guidance and fixed bugs related to Naive Bayes and TF-IDF+RF combinations.
+- `pipeline()` no longer computes ROC or returns ROC guidelines
+- `predict_sentiment()` no longer inherits a threshold directly from the pipeline. It now defaults to a standard 0.5 classification threshold, while still allowing users to manually pass the custom cutoff they feel most comfortable with.
+- `evaluate_performance()` is now available. It allows user to calculate detailed metrics (including AUC, Precision, and Recall) targeted at any specific factor level
+-  evaluate_performance() engine leverages R's S3 object-oriented system
+-  evaluate_performance() result can be called in R's plot() function to instantly generate high-quality ROC and Precision-Recall curves

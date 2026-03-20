@@ -1,6 +1,6 @@
 Package: quickSentiment
 Title: A Fast and Flexible Pipeline for Text Classification
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: 
     person("Alabhya", "Dahal", email = "alabhya.dahal@gmail.com", role = c("aut", "cre"))
 Description: A high-level pipeline that simplifies text classification into three streamlined steps: 
@@ -16,7 +16,7 @@ Description: A high-level pipeline that simplifies text classification into thre
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     doParallel,
     foreach,
@@ -25,7 +25,6 @@ Imports:
     Matrix,
     methods,
     naivebayes,
-    pROC,
     quanteda,
     ranger,
     stopwords,
