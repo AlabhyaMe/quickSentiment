@@ -1,6 +1,7 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 [![CRAN checks](https://badges.cranchecks.info/summary/quickSentiment.svg)](https://cran.r-project.org/web/checks/check_results_quickSentiment.html)
+[![codecov](https://codecov.io/gh/YOUR-USERNAME/quickSentiment/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR-USERNAME/quickSentiment)
 <img src="https://img.shields.io/badge/R-276DC3?style=flat-square&logo=r&logoColor=white" />
 
 
