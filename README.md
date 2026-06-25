@@ -2,6 +2,7 @@
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 [![CRAN checks](https://badges.cranchecks.info/summary/quickSentiment.svg)](https://cran.r-project.org/web/checks/check_results_quickSentiment.html)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![CRAN Monthly Downloads](https://cranlogs.r-pkg.org/badges/last-month/quickSentiment)](https://cran.r-project.org/package=quickSentiment)
 
 <img src="https://img.shields.io/badge/R-276DC3?style=flat-square&logo=r&logoColor=white" />
 
