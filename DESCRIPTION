@@ -1,6 +1,6 @@
 Package: quickSentiment
 Title: A Fast and Flexible Pipeline for Text Classification
-Version: 0.3.4
+Version: 0.3.6
 Authors@R: 
     person("Alabhya", "Dahal", email = "alabhya.dahal@gmail.com", role = c("aut", "cre"))
 Description: A high-level pipeline that simplifies text classification into three streamlined steps: 
