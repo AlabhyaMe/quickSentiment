@@ -72,11 +72,21 @@ BOW_train <- function(doc,weighting_scheme = "bow",ngram_size=1) {
   dfm_final <- switch(weighting_scheme,
                       "binary" = quanteda::dfm_weight(dfm_raw, scheme = "boolean"),
                       "term_frequency"     = quanteda::dfm_weight(dfm_raw, scheme = "prop"),
-                      "tfidf"  = quanteda::dfm_tfidf(dfm_raw, scheme_tf = "prop", scheme_df = "inverse",base=exp(1)), #force natural log,
+
+                      "tfidf"  ={
+                        tf_train <- quanteda::dfm_weight(
+                          dfm_raw,
+                          scheme = "prop"
+                        )
+
+                        quanteda::dfm_weight(
+                          tf_train,
+                          weights = idf_vals
+                        )
+                      }, #force natural log,
                       dfm_raw # default bow
   )
 
-  #returns not just the dfm but also the weighting scheme and ngram size for future reference
 
   fit <- list(
     dfm_template = dfm_final,
@@ -99,7 +109,6 @@ BOW_train <- function(doc,weighting_scheme = "bow",ngram_size=1) {
 #'
 #' @importFrom quanteda tokens tokens_ngrams tokens_select dfm dfm_match featnames dfm_weight
 #' @importFrom magrittr %>%
-#' @importFrom Matrix Diagonal
 #' @export
 #' @examples
 #' train_txt <- c("apple orange banana", "apple apple")
@@ -141,12 +150,18 @@ BOW_test <- function(doc, fit) {
   dfm_final <- switch(fit$weighting_scheme,
                       "binary" = quanteda::dfm_weight(dfm_matched, scheme = "boolean"),
                       "term_frequency"     = quanteda::dfm_weight(dfm_matched, scheme = "prop"),
-                      "tfidf"  = {
-                        # Use the specific IDF vector calculated during training
-                        tf_test <- quanteda::dfm_weight(dfm_matched, scheme = "prop")
-                        weighted_mat <- tf_test %*% Matrix::Diagonal(x = fit$idf_vector)
-                        quanteda::as.dfm(weighted_mat)
+                      "tfidf" = {
+                        tf_test <- quanteda::dfm_weight(
+                          dfm_matched,
+                          scheme = "prop"
+                        )
+
+                        quanteda::dfm_weight(
+                          tf_test,
+                          weights = saved_idf
+                        )
                       },
+
                       dfm_matched # Default for "bag of words" (raw counts)
   )
   return(dfm_final)

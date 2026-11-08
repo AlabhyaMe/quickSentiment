@@ -11,7 +11,9 @@ predict_sentiment(pipeline_object, text_column, threshold = 0.5)
 It must contain the trained model, DFM template, preprocessing function,
 and n-gram settings.}
 
-\item{text_column}{A string specifying the column name of the text to predict.}
+\item{text_column}{A character vector of preprocessed
+documents. Apply pre_process() before prediction,
+using the same settings as during training.}
 
 \item{threshold}{Numeric. Optional custom threshold for binary classification.
 If NULL, uses the optimized threshold from training (if available).}

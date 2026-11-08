@@ -6,7 +6,9 @@
 #' @param pipeline_object A list object returned by the main `pipeline()` function.
 #'   It must contain the trained model, DFM template, preprocessing function,
 #'   and n-gram settings.
-#' @param text_column A string specifying the column name of the text to predict.
+#' @param text_column A character vector of preprocessed
+#'   documents. Apply pre_process() before prediction,
+#'   using the same settings as during training.
 #' @param threshold Numeric. Optional custom threshold for binary classification.
 #'   If NULL, uses the optimized threshold from training (if available).
 #'

@@ -1,11 +1,8 @@
-# quickSentiment 0.3.6
+# quickSentiment 0.3.7
 
-## MAJOR ARCHITECTURAL UPGRADES
-Fault-Tolerant Text Preprocessing: Completely rebuilt pre_process() to ensure pipeline resilience on massive, messy datasets. The function now uses a chunked processing architecture (default chunk_size = 5000). If a malformed string crashes a chunk, the function automatically degrades to row-by-row isolation for that specific block, neutralizing the corrupted string to NA_character_ and seamlessly resuming C++ vectorized speed for the rest of the dataset.
+## Bug Fixes
+* **TF-IDF Weighting Consistency:** Fixed a mathematical mismatch in `BOW_train` and `BOW_test`. Previously, `BOW_train` utilized `quanteda::dfm_tfidf` (which defaults to standard inverse document frequency), while `BOW_test` applied a manual smoothed IDF formula (`log((N+1)/(df+1)) + 1`). The pipeline now correctly and consistently applies the smoothed scikit-learn style IDF weights across both training and testing datasets using `quanteda::dfm_weight()`.
 
-The Quarantine Attribute: When pre_process() isolates a fatal text encoding or parsing error, it now attaches a quarantine dataframe as an attribute to the output vector (attr(cleaned_vector, "quarantine")). This allows production pipelines to log the exact row_index, original_text, and error_message of failed rows without halting the overarching R session.
-
-## NEW FEATURES
-Advanced Memory Management: Exposed the chunk_size argument in pre_process(), allowing advanced users to optimize the speed-to-memory trade-off based on their specific hardware and data quality.
-
-Automated Data Sanitization: The main pipeline() function now safely detects and simultaneously drops NA values in both the text vector and sentiment label vectors prior to training, preventing downstream failures caused by quarantined text rows.
+## Minor Improvements
+* **Dependency Reduction:** Removed the `@importFrom` dependency on the `Matrix` package, as the updated IDF weighting logic now operates entirely natively within the `quanteda` ecosystem.
+* Fixed a minor missing comma syntax error in the `switch` statement of `BOW_test`.

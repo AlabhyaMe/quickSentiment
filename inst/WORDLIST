@@ -29,8 +29,10 @@ pred
 quanteda
 rf
 roc
+scikit
 stopword
 stopwords
+tokenization
 unigrams
 vectorization
 vectorizing
